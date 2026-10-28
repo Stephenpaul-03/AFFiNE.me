@@ -13,7 +13,7 @@ import { useServices } from '@toeverything/infra';
 import { useCallback } from 'react';
 
 import { useAppSettingHelper } from '../../../../../components/hooks/affine/use-app-setting-helper';
-import { relatedLinks } from './config';
+import { forkLinks, relatedLinks } from './config';
 import * as styles from './style.css';
 import { UpdateCheckSection } from './update-check-section';
 
@@ -58,6 +58,31 @@ export const AboutAffine = () => {
         subtitle={t['com.affine.aboutAFFiNE.subtitle']()}
         data-testid="about-title"
       />
+      <SettingWrapper title={t['com.affine.aboutAFFiNE.fork.title']()}>
+        <SettingRow
+          name={t['com.affine.aboutAFFiNE.fork.version.name']()}
+          desc={t['com.affine.aboutAFFiNE.fork.version.description']()}
+          className={styles.appImageRow}
+        >
+          <img src={appIcon} alt="AFFiNE.me" width={56} height={56} />
+        </SettingRow>
+        <SettingRow
+          name={t['com.affine.aboutAFFiNE.fork.info.name']()}
+          desc={t['com.affine.aboutAFFiNE.fork.description']()}
+        />
+        <div className={styles.communityWrapper}>
+          {forkLinks.map(({ icon, title, link }) => (
+            <div
+              className={styles.communityItem}
+              onClick={() => urlService.openPopupWindow(link)}
+              key={title}
+            >
+              {icon}
+              <p>{title}</p>
+            </div>
+          ))}
+        </div>
+      </SettingWrapper>
       <SettingWrapper title={t['com.affine.aboutAFFiNE.version.title']()}>
         <SettingRow
           name={appName}

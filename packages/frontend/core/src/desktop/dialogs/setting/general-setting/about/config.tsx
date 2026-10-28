@@ -33,3 +33,11 @@ export const relatedLinks = [
     link: 'https://www.reddit.com/r/Affine/',
   },
 ];
+
+export const forkLinks = [
+  {
+    icon: <GithubIcon />,
+    title: 'GitHub',
+    link: 'https://github.com/Stephenpaul-03/AFFiNE.me',
+  },
+];

@@ -688,6 +688,26 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.aboutAFFiNE.community.title"](): string;
     /**
+      * `AFFiNE.me`
+      */
+    ["com.affine.aboutAFFiNE.fork.title"](): string;
+    /**
+      * `AFFiNE.me`
+      */
+    ["com.affine.aboutAFFiNE.fork.version.name"](): string;
+    /**
+      * `Version 4`
+      */
+    ["com.affine.aboutAFFiNE.fork.version.description"](): string;
+    /**
+      * `About this fork`
+      */
+    ["com.affine.aboutAFFiNE.fork.info.name"](): string;
+    /**
+      * `AFFiNE.me is my solo indie fork of AFFiNE. I’m shaping it into a cleaner, more focused personal version by experimenting with features and hiding, adding, or removing parts of the upstream app to fit the way I work.`
+      */
+    ["com.affine.aboutAFFiNE.fork.description"](): string;
+    /**
       * `AFFiNE community`
       */
     ["com.affine.aboutAFFiNE.contact.community"](): string;
