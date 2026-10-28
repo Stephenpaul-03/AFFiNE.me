@@ -28,6 +28,10 @@ export const promptWarningTitle = style({
   color: cssVar('errorColor'),
   fontWeight: 600,
 });
+export const Largespacer = style({
+  flexGrow: 1,
+  minHeight: 32,
+});
 export const spacer = style({
   flexGrow: 1,
   minHeight: 12,

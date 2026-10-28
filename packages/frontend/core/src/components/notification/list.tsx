@@ -11,6 +11,7 @@ import {
 } from '@affine/component';
 import { AuthService, InvitationService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import {
   type Notification,
   NotificationListService,
@@ -58,6 +59,9 @@ export const NotificationList = () => {
   const authService = useService(AuthService);
   const globalDialogService = useService(GlobalDialogService);
   const authStatus = useLiveData(authService.session.status$);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const notifications = useLiveData(notificationListService.notifications$);
   const isLoading = useLiveData(notificationListService.isLoading$);
   const error = useLiveData(notificationListService.error$);
@@ -127,7 +131,7 @@ export const NotificationList = () => {
       </div>
       <Scrollable.Root className={styles.scrollRoot}>
         <Scrollable.Viewport className={styles.scrollViewport}>
-          {authStatus === 'unauthenticated' ? (
+          {authStatus === 'unauthenticated' && !hideCloudSurfaces ? (
             <NotificationSignIn onSignIn={handleSignIn} />
           ) : notifications.length > 0 ? (
             <ul className={styles.itemList}>

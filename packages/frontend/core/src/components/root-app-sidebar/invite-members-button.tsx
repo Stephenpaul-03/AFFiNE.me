@@ -1,13 +1,17 @@
 import { MenuItem } from '@affine/core/modules/app-sidebar/views';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { CollaborationIcon } from '@blocksuite/icons/rc';
-import { useService } from '@toeverything/infra';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 
 export const InviteMembersButton = () => {
   const workspace = useService(WorkspaceService).workspace;
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const isLocal = workspace.flavour === 'local';
 
@@ -20,7 +24,7 @@ export const InviteMembersButton = () => {
 
   const t = useI18n();
 
-  if (isLocal) {
+  if (isLocal || hideCloudSurfaces) {
     return null;
   }
 

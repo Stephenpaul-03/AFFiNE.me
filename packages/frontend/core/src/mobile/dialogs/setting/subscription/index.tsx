@@ -1,5 +1,6 @@
 import { AuthService, ServerService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { NativePaywallService } from '@affine/core/modules/paywall';
 import { UrlService } from '@affine/core/modules/url';
 import { useI18n } from '@affine/i18n';
@@ -20,6 +21,9 @@ export const PlansGroup = () => {
   const urlService = useService(UrlService);
   const nativePaywallProvider =
     useService(NativePaywallService).getNativePaywallProvider();
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const t = useI18n();
 
   const supported = useLiveData(
@@ -35,6 +39,8 @@ export const PlansGroup = () => {
 
     void nativePaywallProvider?.showPaywall('Pro').catch(console.error);
   }, [globalDialogService, loggedIn, nativePaywallProvider]);
+
+  if (hideCloudSurfaces) return null;
 
   return (
     <SettingGroup title={t['com.affine.mobile.setting.plans.title']()}>

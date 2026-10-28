@@ -1,6 +1,7 @@
 import { useWorkspaceInfo } from '@affine/core/components/hooks/use-workspace-info';
 import { ServerService } from '@affine/core/modules/cloud';
 import type { SettingTab } from '@affine/core/modules/dialogs/constant';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { EmbeddingSettings } from '@affine/core/modules/workspace-indexer-embedding';
 import { ServerDeploymentType } from '@affine/graphql';
@@ -37,12 +38,17 @@ export const WorkspaceSetting = ({
   onCloseSetting: () => void;
   onChangeSettingState: (settingState: SettingState) => void;
 }) => {
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
+
   switch (activeTab) {
     case 'workspace:preference':
       return <WorkspaceSettingDetail onCloseSetting={onCloseSetting} />;
     case 'workspace:properties':
       return <WorkspaceSettingProperties />;
     case 'workspace:members':
+      if (hideCloudSurfaces) return null;
       return (
         <MembersPanel
           onCloseSetting={onCloseSetting}
@@ -68,6 +74,9 @@ export const useWorkspaceSettingList = (): SettingSidebarItem[] => {
   const workspaceService = useService(WorkspaceService);
   const information = useWorkspaceInfo(workspaceService.workspace);
   const serverService = useService(ServerService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const isSelfhosted = useLiveData(
     serverService.server.config$.selector(
@@ -94,7 +103,7 @@ export const useWorkspaceSettingList = (): SettingSidebarItem[] => {
         icon: <PropertyIcon />,
         testId: 'workspace-setting:properties',
       },
-      {
+      !hideCloudSurfaces && {
         key: 'workspace:members',
         title: t['Members'](),
         icon: <CollaborationIcon />,
@@ -134,7 +143,7 @@ export const useWorkspaceSettingList = (): SettingSidebarItem[] => {
         testId: 'workspace-setting:license',
       },
     ].filter((item): item is SettingSidebarItem => !!item);
-  }, [showBilling, showLicense, t]);
+  }, [hideCloudSurfaces, showBilling, showLicense, t]);
 
   return items;
 };

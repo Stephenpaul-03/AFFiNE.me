@@ -3,8 +3,24 @@
  */
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import type * as Infra from '@toeverything/infra';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
+
+const featureFlagState = vi.hoisted(() => ({ hideCloudSurfaces: false }));
+
+vi.mock('@toeverything/infra', async importOriginal => {
+  const actual = await importOriginal<typeof Infra>();
+  return {
+    ...actual,
+    useLiveData: () => featureFlagState.hideCloudSurfaces,
+    useService: () => ({ flags: { hide_cloud_surfaces: { $: {} } } }),
+  };
+});
+
+vi.mock('@affine/core/components/affine/auth/sign-in-disabled', () => ({
+  SignInDisabledModal: () => <div>sign-in-disabled</div>,
+}));
 
 const setNativeSignIn = (implementation: ReturnType<typeof vi.fn>) => {
   Object.defineProperty(window, 'showNativeSignIn', {
@@ -50,6 +66,7 @@ import { SignInDialog } from './index';
 describe('SignInDialog', () => {
   afterEach(() => {
     cleanup();
+    featureFlagState.hideCloudSurfaces = false;
     delete window.showNativeSignIn;
     vi.unstubAllGlobals();
   });
@@ -105,5 +122,18 @@ describe('SignInDialog', () => {
       expect(close).toHaveBeenCalledTimes(1);
     });
     expect(screen.queryByText('mobile-sign-in-panel')).toBeNull();
+  });
+
+  test('shows the disabled notice without starting native sign-in', () => {
+    const close = vi.fn();
+    const nativeSignIn = vi.fn();
+    featureFlagState.hideCloudSurfaces = true;
+    setNativeSignIn(nativeSignIn);
+
+    render(<SignInDialog close={close} step="signIn" />);
+
+    expect(screen.getByText('sign-in-disabled')).not.toBeNull();
+    expect(screen.queryByText('mobile-sign-in-panel')).toBeNull();
+    expect(nativeSignIn).not.toHaveBeenCalled();
   });
 });

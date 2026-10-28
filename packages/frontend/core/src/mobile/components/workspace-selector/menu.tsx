@@ -13,6 +13,7 @@ import {
   ServersService,
 } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import {
   type WorkspaceMetadata,
@@ -203,6 +204,9 @@ const CloudWorkSpaceList = ({
   const globalDialogService = useService(GlobalDialogService);
   const serverName = useLiveData(server.config$.selector(c => c.serverName));
   const authService = useService(AuthService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const serversService = useService(ServersService);
   const account = useLiveData(authService.session.account$);
   const accountStatus = useLiveData(authService.session.status$);
@@ -251,7 +255,9 @@ const CloudWorkSpaceList = ({
         onSignOut={handleSignOut}
       />
       {accountStatus === 'unauthenticated' ? (
-        <CloudSignIn onClick={handleSignIn} />
+        hideCloudSurfaces ? null : (
+          <CloudSignIn onClick={handleSignIn} />
+        )
       ) : (
         <WorkspaceList
           items={workspaces}
@@ -265,12 +271,15 @@ const CloudWorkSpaceList = ({
 
 const AddServer = () => {
   const globalDialogService = useService(GlobalDialogService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const onAddServer = useCallback(() => {
     globalDialogService.open('sign-in', { step: 'addSelfhosted' });
   }, [globalDialogService]);
 
-  if (!BUILD_CONFIG.isNative) {
+  if (!BUILD_CONFIG.isNative || hideCloudSurfaces) {
     return null;
   }
 

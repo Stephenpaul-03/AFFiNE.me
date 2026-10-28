@@ -708,6 +708,10 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.aboutAFFiNE.fork.description"](): string;
     /**
+      * `AFFiNE.me Experimental Features`
+      */
+    ["com.affine.settings.experimental-features.affine-me.title"](): string;
+    /**
       * `AFFiNE community`
       */
     ["com.affine.aboutAFFiNE.contact.community"](): string;
@@ -1543,6 +1547,18 @@ export function useAFFiNEI18N(): {
       * `Sign in to AFFiNE`
       */
     ["com.affine.auth.sign.in"](): string;
+    /**
+      * `Sign-in is hidden`
+      */
+    ["com.affine.auth.experimental-sign-in-disabled.title"](): string;
+    /**
+      * `The Hide cloud-related pages and prompts experimental feature is turned on. Turn it off in Settings → Experimental Features to sign in.`
+      */
+    ["com.affine.auth.experimental-sign-in-disabled.description"](): string;
+    /**
+      * `Close`
+      */
+    ["com.affine.auth.experimental-sign-in-disabled.close"](): string;
     /**
       * `Confirm your email`
       */
@@ -6715,7 +6731,7 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.settings.workspace.experimental-features.get-started"](): string;
     /**
-      * `Experimental features`
+      * `AFFiNE Experimental Features`
       */
     ["com.affine.settings.workspace.experimental-features.header.plugins"](): string;
     /**

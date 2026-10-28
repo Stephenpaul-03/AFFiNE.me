@@ -167,6 +167,22 @@ const ExperimentalFeaturesMain = () => {
   return (
     <>
       <SettingHeader
+        title={t['com.affine.settings.experimental-features.affine-me.title']()}
+        subtitle={t[
+          'com.affine.settings.experimental-features.affine-me.subtitle'
+        ]()}
+      />
+      <div
+        className={styles.settingsContainer}
+        data-testid="affine-me-experimental-settings"
+      >
+        <ExperimentalFeaturesItem
+          flagKey="hide_cloud_surfaces"
+          flag={featureFlagService.flags.hide_cloud_surfaces}
+        />
+      </div>
+      <div className={styles.Largespacer} />
+      <SettingHeader
         title={t[
           'com.affine.settings.workspace.experimental-features.header.plugins'
         ]()}
@@ -178,13 +194,15 @@ const ExperimentalFeaturesMain = () => {
         className={styles.settingsContainer}
         data-testid="experimental-settings"
       >
-        {Object.keys(AFFINE_FLAGS).map(key => (
-          <ExperimentalFeaturesItem
-            key={key}
-            flagKey={key}
-            flag={featureFlagService.flags[key as keyof AFFINE_FLAGS]}
-          />
-        ))}
+        {Object.keys(AFFINE_FLAGS)
+          .filter(key => key !== 'hide_cloud_surfaces')
+          .map(key => (
+            <ExperimentalFeaturesItem
+              key={key}
+              flagKey={key}
+              flag={featureFlagService.flags[key as keyof AFFINE_FLAGS]}
+            />
+          ))}
       </div>
     </>
   );

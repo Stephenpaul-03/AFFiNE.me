@@ -1,6 +1,7 @@
 import { SettingRow } from '@affine/component/setting-components';
 import { Button } from '@affine/component/ui/button';
 import { useEnableCloud } from '@affine/core/components/hooks/affine/use-enable-cloud';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import {
   type Workspace,
   WorkspaceService,
@@ -21,6 +22,9 @@ export const EnableCloudPanel = ({
 }) => {
   const t = useI18n();
   const confirmEnableCloud = useEnableCloud();
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const workspace = useService(WorkspaceService).workspace;
   const name = useLiveData(workspace.name$);
@@ -35,7 +39,7 @@ export const EnableCloudPanel = ({
     });
   }, [confirmEnableCloud, onCloseSetting, workspace]);
 
-  if (flavour !== 'local') {
+  if (flavour !== 'local' || hideCloudSurfaces) {
     return null;
   }
 

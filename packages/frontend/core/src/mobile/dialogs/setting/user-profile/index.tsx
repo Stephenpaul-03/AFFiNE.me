@@ -2,6 +2,7 @@ import { Avatar } from '@affine/component';
 import { useSignOut } from '@affine/core/components/hooks/affine/use-sign-out';
 import { AuthService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { useI18n } from '@affine/i18n';
 import { ArrowRightSmallIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -15,6 +16,11 @@ import * as styles from './style.css';
 export const UserProfile = () => {
   const session = useService(AuthService).session;
   const loginStatus = useLiveData(session.status$);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
+
+  if (loginStatus !== 'authenticated' && hideCloudSurfaces) return null;
 
   return loginStatus === 'authenticated' ? (
     <AuthorizedUserProfile />

@@ -1,5 +1,6 @@
 import { MenuItem } from '@affine/component/ui/menu';
 import { DefaultServerService } from '@affine/core/modules/cloud';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { ServerFeature } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
 import { ImportIcon, PlusIcon } from '@blocksuite/icons/rc';
@@ -16,13 +17,14 @@ export const AddWorkspace = ({
 }) => {
   const t = useI18n();
   const defaultServerService = useService(DefaultServerService);
-  const enableLocalWorkspace = useLiveData(
-    defaultServerService.server.config$.selector(
-      c =>
-        c.features.includes(ServerFeature.LocalWorkspace) ||
-        BUILD_CONFIG.isNative
-    )
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
   );
+  const defaultServerConfig = useLiveData(defaultServerService.server.config$);
+  const enableLocalWorkspace =
+    hideCloudSurfaces ||
+    BUILD_CONFIG.isNative ||
+    defaultServerConfig.features.includes(ServerFeature.LocalWorkspace);
 
   return (
     <>

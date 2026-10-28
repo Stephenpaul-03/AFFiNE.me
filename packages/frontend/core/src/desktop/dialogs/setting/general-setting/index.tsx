@@ -55,6 +55,9 @@ export const useGeneralSettingList = (): GeneralSettingList => {
   const enableEditorSettings = useLiveData(
     featureFlagService.flags.enable_editor_settings.$
   );
+  const hideCloudSurfaces = useLiveData(
+    featureFlagService.flags.hide_cloud_surfaces.$
+  );
 
   useEffect(() => {
     userFeatureService.userFeature.revalidate();
@@ -109,12 +112,14 @@ export const useGeneralSettingList = (): GeneralSettingList => {
     }
 
     if (hasPaymentFeature) {
-      settings.splice(4, 0, {
-        key: 'plans',
-        title: t['com.affine.payment.title'](),
-        icon: <UpgradeIcon />,
-        testId: 'plans-panel-trigger',
-      });
+      if (!hideCloudSurfaces) {
+        settings.splice(4, 0, {
+          key: 'plans',
+          title: t['com.affine.payment.title'](),
+          icon: <UpgradeIcon />,
+          testId: 'plans-panel-trigger',
+        });
+      }
       if (loggedIn) {
         settings.splice(4, 0, {
           key: 'billing',
@@ -155,6 +160,7 @@ export const useGeneralSettingList = (): GeneralSettingList => {
     enableEditorSettings,
     meetingSettings?.enabled,
     hasPaymentFeature,
+    hideCloudSurfaces,
   ]);
 };
 

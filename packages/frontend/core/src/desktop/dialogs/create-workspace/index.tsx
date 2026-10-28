@@ -10,12 +10,13 @@ import {
   type GLOBAL_DIALOG_SCHEMA,
   GlobalDialogService,
 } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WorkspacesService } from '@affine/core/modules/workspace';
 import { buildShowcaseWorkspace } from '@affine/core/utils/first-app-data';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import { FrameworkScope, useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import * as styles from './index.css';
 import { ServerSelector } from './server-selector';
@@ -41,11 +42,20 @@ export const CreateWorkspaceDialog = ({
   ...props
 }: DialogComponentProps<GLOBAL_DIALOG_SCHEMA['create-workspace']>) => {
   const t = useI18n();
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const [workspaceName, setWorkspaceName] = useState('');
   const [inputServerId, setInputServerId] = useState(
-    serverId ?? 'affine-cloud'
+    hideCloudSurfaces ? 'local' : (serverId ?? 'affine-cloud')
   );
+
+  useEffect(() => {
+    if (hideCloudSurfaces) {
+      setInputServerId('local');
+    }
+  }, [hideCloudSurfaces]);
 
   const serversService = useService(ServersService);
   const server = useLiveData(
@@ -101,16 +111,18 @@ export const CreateWorkspaceDialog = ({
         }
       />
 
-      <FormSection
-        label={t['com.affine.nameWorkspace.subtitle.workspace-type']()}
-        input={
-          <ServerSelector
-            className={styles.select}
-            selectedId={inputServerId}
-            onChange={setInputServerId}
-          />
-        }
-      />
+      {hideCloudSurfaces ? null : (
+        <FormSection
+          label={t['com.affine.nameWorkspace.subtitle.workspace-type']()}
+          input={
+            <ServerSelector
+              className={styles.select}
+              selectedId={inputServerId}
+              onChange={setInputServerId}
+            />
+          }
+        />
+      )}
     </ConfirmModal>
   );
 };
@@ -140,7 +152,7 @@ const CustomConfirmButton = ({
     if (loading) return;
     setLoading(true);
     track.$.$.$.createWorkspace({
-      flavour: !server ? 'local' : 'affine-cloud',
+      flavour: !server || server.id === 'local' ? 'local' : 'affine-cloud',
     });
 
     // this will be the last step for web for now
@@ -164,7 +176,7 @@ const CustomConfirmButton = ({
   }, [loading, onCreated, server, workspaceName, workspacesService]);
 
   const handleCheckSessionAndConfirm = useCallback(() => {
-    if (server && loginStatus !== 'authenticated') {
+    if (server && server.id !== 'local' && loginStatus !== 'authenticated') {
       return openSignInModal();
     }
     handleConfirm();

@@ -2,6 +2,7 @@ import { ScrollableContainer } from '@affine/component';
 import { MenuItem } from '@affine/component/ui/menu';
 import { AuthService, DefaultServerService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { type WorkspaceMetadata } from '@affine/core/modules/workspace';
 import { ServerFeature } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
@@ -16,6 +17,9 @@ import { AFFiNEWorkspaceList } from './workspace-list';
 
 export const SignInItem = () => {
   const globalDialogService = useService(GlobalDialogService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const t = useI18n();
 
@@ -23,6 +27,8 @@ export const SignInItem = () => {
     track.$.navigationPanel.workspaceList.requestSignIn();
     globalDialogService.open('sign-in', {});
   }, [globalDialogService]);
+
+  if (hideCloudSurfaces) return null;
 
   return (
     <MenuItem
@@ -67,6 +73,9 @@ export const UserWithWorkspaceList = ({
   const globalDialogService = useService(GlobalDialogService);
   const session = useLiveData(useService(AuthService).session.session$);
   const defaultServerService = useService(DefaultServerService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const isAuthenticated = session.status === 'authenticated';
 
@@ -80,7 +89,7 @@ export const UserWithWorkspaceList = ({
       defaultServerService.server.config$.value.features.includes(
         ServerFeature.LocalWorkspace
       );
-    if (!isAuthenticated && !enableLocalWorkspace) {
+    if (!hideCloudSurfaces && !isAuthenticated && !enableLocalWorkspace) {
       return openSignInModal();
     }
     track.$.navigationPanel.workspaceList.createWorkspace();
@@ -94,6 +103,7 @@ export const UserWithWorkspaceList = ({
     globalDialogService,
     defaultServerService,
     isAuthenticated,
+    hideCloudSurfaces,
     onCreatedWorkspace,
     onEventEnd,
     openSignInModal,

@@ -1,10 +1,13 @@
 import { notify } from '@affine/component';
 import { AffineOtherPageLayout } from '@affine/component/affine-other-page-layout';
 import { SignInPageContainer } from '@affine/component/auth-components';
+import { SignInDisabledModal } from '@affine/core/components/affine/auth/sign-in-disabled';
 import { SignInPanel } from '@affine/core/components/sign-in';
 import { SignInBackgroundArts } from '@affine/core/components/sign-in/background-arts';
 import type { AuthSessionStatus } from '@affine/core/modules/cloud/entities/session';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { useI18n } from '@affine/i18n';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -20,6 +23,9 @@ export const SignIn = ({
 }) => {
   const t = useI18n();
   const navigate = useNavigate();
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const { jumpToIndex } = useNavigateHelper();
   const [searchParams] = useSearchParams();
   const redirectUrl = redirectUrlFromProps ?? searchParams.get('redirect_uri');
@@ -63,6 +69,12 @@ export const SignIn = ({
   );
 
   const initStep = server ? 'addSelfhosted' : 'signIn';
+
+  if (hideCloudSurfaces) {
+    return (
+      <SignInDisabledModal onClose={() => jumpToIndex(RouteLogic.REPLACE)} />
+    );
+  }
 
   return (
     <SignInPageContainer>

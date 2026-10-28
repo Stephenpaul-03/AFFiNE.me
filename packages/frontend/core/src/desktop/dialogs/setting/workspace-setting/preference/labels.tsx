@@ -92,7 +92,11 @@ const getLabelMap = (t: ReturnType<typeof useI18n>): LabelMap => ({
   },
 });
 
-export const LabelsPanel = () => {
+export const LabelsPanel = ({
+  hideLocalLabel = false,
+}: {
+  hideLocalLabel?: boolean;
+}) => {
   const workspace = useService(WorkspaceService).workspace;
   const permissionService = useService(WorkspacePermissionService);
   const isOwner = useLiveData(permissionService.permission.isOwner$);
@@ -106,22 +110,27 @@ export const LabelsPanel = () => {
   const labelMap = useMemo(() => getLabelMap(t), [t]);
 
   const labelConditions = useMemo(
-    () => getConditions(isOwner, workspace.flavour, isTeam),
-    [isOwner, isTeam, workspace.flavour]
+    () =>
+      getConditions(isOwner, workspace.flavour, isTeam).filter(
+        ({ condition, label }) =>
+          condition && !(hideLocalLabel && label === 'local')
+      ),
+    [hideLocalLabel, isOwner, isTeam, workspace.flavour]
   );
+
+  if (labelConditions.length === 0) {
+    return null;
+  }
 
   return (
     <div className={style.labelWrapper}>
-      {labelConditions.map(
-        ({ condition, label }) =>
-          condition && (
-            <Label
-              key={label}
-              value={labelMap[label].value}
-              background={labelMap[label].background}
-            />
-          )
-      )}
+      {labelConditions.map(({ label }) => (
+        <Label
+          key={label}
+          value={labelMap[label].value}
+          background={labelMap[label].background}
+        />
+      ))}
     </div>
   );
 };

@@ -1,9 +1,12 @@
 import { Modal } from '@affine/component';
+import { SignInDisabledModal } from '@affine/core/components/affine/auth/sign-in-disabled';
 import type { SignInStep } from '@affine/core/components/sign-in';
 import type {
   DialogComponentProps,
   GLOBAL_DIALOG_SCHEMA,
 } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
+import { useLiveData, useService } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { useEffect, useRef, useState } from 'react';
 
@@ -20,7 +23,10 @@ export const SignInDialog = ({
   server: initialServerBaseUrl,
   step,
 }: DialogComponentProps<GLOBAL_DIALOG_SCHEMA['sign-in']>) => {
-  const shouldUseNativeSignIn = step !== 'addSelfhosted';
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
+  const shouldUseNativeSignIn = step !== 'addSelfhosted' && !hideCloudSurfaces;
   const [useWebFallback, setUseWebFallback] = useState(!shouldUseNativeSignIn);
   const didRequestNativeSignIn = useRef(false);
   const closeRef = useRef(close);
@@ -32,6 +38,7 @@ export const SignInDialog = ({
   useEffect(() => {
     if (
       !shouldUseNativeSignIn ||
+      hideCloudSurfaces ||
       useWebFallback ||
       didRequestNativeSignIn.current
     ) {
@@ -67,7 +74,11 @@ export const SignInDialog = ({
     return () => {
       isActive = false;
     };
-  }, [shouldUseNativeSignIn, useWebFallback]);
+  }, [hideCloudSurfaces, shouldUseNativeSignIn, useWebFallback]);
+
+  if (hideCloudSurfaces) {
+    return <SignInDisabledModal onClose={close} />;
+  }
 
   if (!useWebFallback) {
     return null;

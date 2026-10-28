@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import { useEnableCloud } from '../components/hooks/affine/use-enable-cloud';
 import { AuthService } from '../modules/cloud';
 import { GlobalDialogService } from '../modules/dialogs';
+import { FeatureFlagService } from '../modules/feature-flag';
 import type { Workspace } from '../modules/workspace';
 
 const minimumChromeVersion = 106;
@@ -62,6 +63,9 @@ export const TopTip = ({
   workspace: Workspace;
 }) => {
   const loginStatus = useLiveData(useService(AuthService).session.status$);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const isLoggedIn = loginStatus === 'authenticated';
 
   const [showWarning, setShowWarning] = useState(shouldShowWarning);
@@ -76,6 +80,7 @@ export const TopTip = ({
   if (
     !BUILD_CONFIG.isElectron &&
     showLocalDemoTips &&
+    !hideCloudSurfaces &&
     workspace.flavour === 'local'
   ) {
     return (

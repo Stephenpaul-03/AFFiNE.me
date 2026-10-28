@@ -7,6 +7,7 @@ import { useNavigateHelper } from '@affine/core/components/hooks/use-navigate-he
 import type { AuthAccountInfo, Server } from '@affine/core/modules/cloud';
 import { AuthService, ServersService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import {
   type WorkspaceMetadata,
@@ -204,10 +205,23 @@ const LocalWorkspaces = ({
   onClickWorkspace,
   onClickWorkspaceSetting,
   onClickEnableCloud,
-}: Omit<WorkspaceModalProps, 'onNewWorkspace' | 'onAddWorkspace'>) => {
+  hideLocalLabel,
+}: Omit<WorkspaceModalProps, 'onNewWorkspace' | 'onAddWorkspace'> & {
+  hideLocalLabel?: boolean;
+}) => {
   const t = useI18n();
   if (workspaces.length === 0) {
     return null;
+  }
+  if (hideLocalLabel) {
+    return (
+      <WorkspaceList
+        items={workspaces}
+        onClick={onClickWorkspace}
+        onSettingClick={onClickWorkspaceSetting}
+        onEnableCloudClick={onClickEnableCloud}
+      />
+    );
   }
   return (
     <>
@@ -241,6 +255,9 @@ export const AFFiNEWorkspaceList = ({
 
   const serversService = useService(ServersService);
   const servers = useLiveData(serversService.servers$);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
   const affineCloudServer = useMemo(
     () => servers.find(s => s.id === 'affine-cloud') as Server,
     [servers]
@@ -285,6 +302,16 @@ export const AFFiNEWorkspaceList = ({
     },
     [onClickWorkspace, onEventEnd]
   );
+
+  if (hideCloudSurfaces) {
+    return (
+      <LocalWorkspaces
+        workspaces={localWorkspaces}
+        onClickWorkspace={handleClickWorkspace}
+        hideLocalLabel
+      />
+    );
+  }
 
   return (
     <>

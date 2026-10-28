@@ -3,6 +3,7 @@ import { Button } from '@affine/component/ui/button';
 import { Menu } from '@affine/component/ui/menu';
 import { ServerService } from '@affine/core/modules/cloud';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceQuotaService } from '@affine/core/modules/quota';
 import { ShareInfoService } from '@affine/core/modules/share-doc';
@@ -49,6 +50,9 @@ export enum ShareMenuTab {
 export const ShareMenuContent = (props: ShareMenuProps) => {
   const t = useI18n();
   const [currentTab, setCurrentTab] = useState(ShareMenuTab.Share);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const serverService = useService(ServerService);
   const isSelfhosted = useLiveData(
@@ -151,13 +155,19 @@ export const ShareMenuContent = (props: ShareMenuProps) => {
     <div className={styles.containerStyle}>
       <Tabs.Root
         defaultValue={ShareMenuTab.Share}
-        value={currentTab}
+        value={
+          hideCloudSurfaces && currentTab === ShareMenuTab.Share
+            ? ShareMenuTab.Export
+            : currentTab
+        }
         onValueChange={onValueChange}
       >
         <Tabs.List className={styles.tabList}>
-          <Tabs.Trigger value={ShareMenuTab.Share} className={styles.tab}>
-            {t['com.affine.share-menu.shareButton']()}
-          </Tabs.Trigger>
+          {hideCloudSurfaces ? null : (
+            <Tabs.Trigger value={ShareMenuTab.Share} className={styles.tab}>
+              {t['com.affine.share-menu.shareButton']()}
+            </Tabs.Trigger>
+          )}
           <Tabs.Trigger
             value={ShareMenuTab.Export}
             className={styles.tab}
@@ -177,19 +187,21 @@ export const ShareMenuContent = (props: ShareMenuProps) => {
             members
           </Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value={ShareMenuTab.Share}>
-          <SharePage
-            hittingPaywall={!!hittingPaywall}
-            openPaywallModal={openPaywallModal}
-            onClickInvite={() => {
-              setCurrentTab(ShareMenuTab.Invite);
-            }}
-            onClickMembers={() => {
-              setCurrentTab(ShareMenuTab.Members);
-            }}
-            {...props}
-          />
-        </Tabs.Content>
+        {hideCloudSurfaces ? null : (
+          <Tabs.Content value={ShareMenuTab.Share}>
+            <SharePage
+              hittingPaywall={!!hittingPaywall}
+              openPaywallModal={openPaywallModal}
+              onClickInvite={() => {
+                setCurrentTab(ShareMenuTab.Invite);
+              }}
+              onClickMembers={() => {
+                setCurrentTab(ShareMenuTab.Members);
+              }}
+              {...props}
+            />
+          </Tabs.Content>
+        )}
         <Tabs.Content value={ShareMenuTab.Export}>
           <ShareExport />
         </Tabs.Content>
@@ -211,6 +223,9 @@ const DefaultShareButton = forwardRef(function DefaultShareButton(
   const t = useI18n();
   const shareInfoService = useService(ShareInfoService);
   const shared = useLiveData(shareInfoService.shareInfo.isShared$);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   useEffect(() => {
     if (props.disabled) {
@@ -235,7 +250,9 @@ const DefaultShareButton = forwardRef(function DefaultShareButton(
       >
         <div className={styles.buttonContainer}>
           {shared ? <PublishIcon fontSize={16} /> : <LockIcon fontSize={16} />}
-          {t['com.affine.share-menu.shareButton']()}
+          {hideCloudSurfaces
+            ? t['Export']()
+            : t['com.affine.share-menu.shareButton']()}
         </div>
       </Button>
     </Tooltip>

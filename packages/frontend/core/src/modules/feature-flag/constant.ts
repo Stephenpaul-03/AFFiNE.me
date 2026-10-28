@@ -303,6 +303,15 @@ export const AFFINE_FLAGS = {
     configurable: BUILD_CONFIG.isElectron && isCanaryBuild,
     defaultState: false,
   },
+  hide_cloud_surfaces: {
+    category: 'affine',
+    displayName:
+      'com.affine.settings.workspace.experimental-features.hide-cloud-surfaces.name',
+    description:
+      'com.affine.settings.workspace.experimental-features.hide-cloud-surfaces.description',
+    configurable: true,
+    defaultState: false,
+  },
   enable_mobile_database_editing: {
     category: 'blocksuite',
     bsFlag: 'enable_mobile_database_editing',

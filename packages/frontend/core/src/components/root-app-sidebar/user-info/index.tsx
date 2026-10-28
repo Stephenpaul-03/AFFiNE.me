@@ -11,6 +11,7 @@ import {
   ServerService,
 } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 
@@ -53,10 +54,15 @@ const AuthorizedUserInfo = ({ account }: { account: AuthAccountInfo }) => {
 
 const UnauthorizedUserInfo = () => {
   const globalDialogService = useService(GlobalDialogService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
 
   const openSignInModal = useCallback(() => {
     globalDialogService.open('sign-in', {});
   }, [globalDialogService]);
+
+  if (hideCloudSurfaces) return null;
 
   return (
     <IconButton

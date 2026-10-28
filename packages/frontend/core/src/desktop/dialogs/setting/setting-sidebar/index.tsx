@@ -5,6 +5,7 @@ import { useCatchEventCallback } from '@affine/core/components/hooks/use-catch-e
 import { AuthService } from '@affine/core/modules/cloud';
 import { GlobalDialogService } from '@affine/core/modules/dialogs';
 import type { SettingTab } from '@affine/core/modules/dialogs/constant';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { type WorkspaceMetadata } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
@@ -82,14 +83,19 @@ export const UserInfo = ({
 export const SignInButton = () => {
   const t = useI18n();
   const globalDialogService = useService(GlobalDialogService);
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
+  const onSignIn = useCallback(() => {
+    globalDialogService.open('sign-in', {});
+  }, [globalDialogService]);
+
+  if (hideCloudSurfaces) {
+    return null;
+  }
 
   return (
-    <div
-      className={style.accountButton}
-      onClick={useCallback(() => {
-        globalDialogService.open('sign-in', {});
-      }, [globalDialogService])}
-    >
+    <div className={style.accountButton} onClick={onSignIn}>
       <div className="avatar not-sign">
         <Logo1Icon />
       </div>
