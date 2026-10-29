@@ -14,7 +14,10 @@ import { AuthService, ServerService } from '@affine/core/modules/cloud';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
-import type { Workspace } from '@affine/core/modules/workspace';
+import {
+  type Workspace,
+  WorkspaceService,
+} from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
@@ -43,6 +46,9 @@ import {
   bottomContainer,
   quickSearch,
   quickSearchAndNewPage,
+  sidebarUtilityAction,
+  sidebarUtilityActionLabel,
+  sidebarUtilityActions,
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
@@ -131,6 +137,13 @@ export const RootAppSidebar = memo((): ReactElement => {
   );
 
   const sessionStatus = useLiveData(authService.session.status$);
+  const affineMeSidebarLayout = useLiveData(
+    useService(FeatureFlagService).flags.affine_me_sidebar_layout.$
+  );
+  const hideCloudSurfaces = useLiveData(
+    useService(FeatureFlagService).flags.hide_cloud_surfaces.$
+  );
+  const currentWorkspace = useService(WorkspaceService).workspace;
   const t = useI18n();
   const workspaceDialogService = useService(WorkspaceDialogService);
   const workbench = workbenchService.workbench;
@@ -215,47 +228,101 @@ export const RootAppSidebar = memo((): ReactElement => {
         <AppSidebarJournalButton />
         {sessionStatus === 'authenticated' && <NotificationButton />}
         <AIChatButton />
-        <MenuItem
-          data-testid="slider-bar-workspace-setting-button"
-          icon={<SettingsIcon />}
-          onClick={onOpenSettingModal}
-        >
-          <span data-testid="settings-modal-trigger">
-            {t['com.affine.settingSidebar.title']()}
-          </span>
-        </MenuItem>
+        {!affineMeSidebarLayout && (
+          <MenuItem
+            data-testid="slider-bar-workspace-setting-button"
+            icon={<SettingsIcon />}
+            onClick={onOpenSettingModal}
+          >
+            <span data-testid="settings-modal-trigger">
+              {t['com.affine.settingSidebar.title']()}
+            </span>
+          </MenuItem>
+        )}
       </SidebarContainer>
       <SidebarScrollableContainer>
-        <NavigationPanelFavorites />
         <NavigationPanelOrganize />
-        <NavigationPanelMigrationFavorites />
+        <NavigationPanelFavorites />
         <NavigationPanelTags />
         <NavigationPanelCollections />
-        <CollapsibleSection
-          path={['others']}
-          title={t['com.affine.rootAppSidebar.others']()}
-          contentStyle={{ padding: '6px 8px 0 8px' }}
-        >
-          <TrashButton />
-          <MenuItem
-            data-testid="slider-bar-import-button"
-            icon={<ImportIcon />}
-            onClick={onOpenImportModal}
+        <NavigationPanelMigrationFavorites />
+        {affineMeSidebarLayout ? (
+          sessionStatus === 'authenticated' &&
+          currentWorkspace.flavour !== 'local' &&
+          !hideCloudSurfaces ? (
+            <CollapsibleSection
+              path={['others']}
+              title={t['com.affine.rootAppSidebar.others']()}
+              contentStyle={{ padding: '6px 8px 0 8px' }}
+            >
+              <InviteMembersButton />
+            </CollapsibleSection>
+          ) : null
+        ) : (
+          <CollapsibleSection
+            path={['others']}
+            title={t['com.affine.rootAppSidebar.others']()}
+            contentStyle={{ padding: '6px 8px 0 8px' }}
           >
-            <span data-testid="import-modal-trigger">{t['Import']()}</span>
-          </MenuItem>
-          <InviteMembersButton />
-          <TemplateDocEntrance />
-          <ExternalMenuLinkItem
-            href="https://affine.pro/blog?tag=Release+Note"
-            icon={<JournalIcon />}
-            label={t['com.affine.app-sidebar.learn-more']()}
-          />
-        </CollapsibleSection>
+            <TrashButton />
+            <MenuItem
+              data-testid="slider-bar-import-button"
+              icon={<ImportIcon />}
+              onClick={onOpenImportModal}
+            >
+              <span data-testid="import-modal-trigger">{t['Import']()}</span>
+            </MenuItem>
+            <InviteMembersButton />
+            <TemplateDocEntrance />
+            <ExternalMenuLinkItem
+              href="https://affine.pro/blog?tag=Release+Note"
+              icon={<JournalIcon />}
+              label={t['com.affine.app-sidebar.learn-more']()}
+            />
+          </CollapsibleSection>
+        )}
       </SidebarScrollableContainer>
       <SidebarContainer className={bottomContainer}>
         <SidebarAudioPlayer />
         {BUILD_CONFIG.isElectron ? <UpdaterButton /> : <AppDownloadButton />}
+        {affineMeSidebarLayout && (
+          <div className={sidebarUtilityActions}>
+            <TemplateDocEntrance
+              className={sidebarUtilityAction}
+              labelClassName={sidebarUtilityActionLabel}
+            />
+            <MenuItem
+              data-testid="slider-bar-import-button"
+              icon={<ImportIcon />}
+              onClick={onOpenImportModal}
+              className={sidebarUtilityAction}
+            >
+              <span
+                className={sidebarUtilityActionLabel}
+                data-testid="import-modal-trigger"
+              >
+                {t['Import']()}
+              </span>
+            </MenuItem>
+            <TrashButton
+              className={sidebarUtilityAction}
+              labelClassName={sidebarUtilityActionLabel}
+            />
+            <MenuItem
+              data-testid="slider-bar-workspace-setting-button"
+              icon={<SettingsIcon />}
+              onClick={onOpenSettingModal}
+              className={sidebarUtilityAction}
+            >
+              <span
+                className={sidebarUtilityActionLabel}
+                data-testid="settings-modal-trigger"
+              >
+                {t['com.affine.settingSidebar.title']()}
+              </span>
+            </MenuItem>
+          </div>
+        )}
       </SidebarContainer>
     </AppSidebar>
   );

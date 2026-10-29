@@ -13,7 +13,10 @@ import { UserFriendlyError } from '@affine/error';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
 
-export const TrashButton = () => {
+export const TrashButton = ({
+  className,
+  labelClassName,
+}: { className?: string; labelClassName?: string } = {}) => {
   const t = useI18n();
   const docsService = useService(DocsService);
   const { openConfirmModal } = useConfirmModal();
@@ -79,8 +82,9 @@ export const TrashButton = () => {
       icon={<AnimatedDeleteIcon closed={draggedOver} />}
       active={trashActive || draggedOver}
       to={'/trash'}
+      className={className}
     >
-      <span data-testid="trash-page">
+      <span className={labelClassName} data-testid="trash-page">
         {t['com.affine.workspaceSubPath.trash']()}
       </span>
     </MenuLinkItem>

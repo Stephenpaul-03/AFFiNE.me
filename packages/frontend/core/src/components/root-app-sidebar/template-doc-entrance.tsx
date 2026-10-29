@@ -9,7 +9,10 @@ import track from '@affine/track';
 import { TemplateIcon } from '@blocksuite/icons/rc';
 import { useCallback, useState } from 'react';
 
-export const TemplateDocEntrance = () => {
+export const TemplateDocEntrance = ({
+  className,
+  labelClassName,
+}: { className?: string; labelClassName?: string } = {}) => {
   const t = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -27,6 +30,7 @@ export const TemplateDocEntrance = () => {
       data-testid="sidebar-template-doc-entrance"
       icon={<TemplateIcon />}
       onClick={toggleMenu}
+      className={className}
     >
       <Menu
         rootOptions={{ open: menuOpen, onOpenChange: onMenuOpenChange }}
@@ -49,7 +53,7 @@ export const TemplateDocEntrance = () => {
           />
         }
       >
-        <span>{t['Template']()}</span>
+        <span className={labelClassName}>{t['Template']()}</span>
       </Menu>
     </SidebarMenuItem>
   );

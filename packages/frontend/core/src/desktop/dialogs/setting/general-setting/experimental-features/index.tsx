@@ -180,6 +180,10 @@ const ExperimentalFeaturesMain = () => {
           flagKey="hide_cloud_surfaces"
           flag={featureFlagService.flags.hide_cloud_surfaces}
         />
+        <ExperimentalFeaturesItem
+          flagKey="affine_me_sidebar_layout"
+          flag={featureFlagService.flags.affine_me_sidebar_layout}
+        />
       </div>
       <div className={styles.Largespacer} />
       <SettingHeader
@@ -195,7 +199,11 @@ const ExperimentalFeaturesMain = () => {
         data-testid="experimental-settings"
       >
         {Object.keys(AFFINE_FLAGS)
-          .filter(key => key !== 'hide_cloud_surfaces')
+          .filter(
+            key =>
+              key !== 'hide_cloud_surfaces' &&
+              key !== 'affine_me_sidebar_layout'
+          )
           .map(key => (
             <ExperimentalFeaturesItem
               key={key}

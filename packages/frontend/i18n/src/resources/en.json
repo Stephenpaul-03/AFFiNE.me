@@ -1747,6 +1747,8 @@
   "com.affine.settings.workspace.experimental-features.enable-adapter-panel.description": "Once enabled, you can preview adapter export content in the right side bar.",
   "com.affine.settings.experimental-features.affine-me.title": "AFFiNE.me Experimental Features",
   "com.affine.settings.experimental-features.affine-me.subtitle": "Experimental features available for AFFiNE.me users",
+  "com.affine.settings.experimental-features.affine-me-sidebar-layout.name": "Rearrange the sidebar",
+  "com.affine.settings.experimental-features.affine-me-sidebar-layout.description": "Move sidebar actions below the app download banner, put Organize first, and hide Learn more.",
   "com.affine.settings.workspace.experimental-features.enable-ai-send-detailed-object.name": "Send detailed object information to AI",
   "com.affine.settings.workspace.experimental-features.enable-ai-send-detailed-object.description": "When toggled off, every time you choose \"Continue with AI\", AI only got a screenshot.",
   "com.affine.settings.workspace.experimental-features.hide-cloud-surfaces.name": "Hide cloud-related pages and prompts",

@@ -312,6 +312,15 @@ export const AFFINE_FLAGS = {
     configurable: true,
     defaultState: false,
   },
+  affine_me_sidebar_layout: {
+    category: 'affine',
+    displayName:
+      'com.affine.settings.experimental-features.affine-me-sidebar-layout.name',
+    description:
+      'com.affine.settings.experimental-features.affine-me-sidebar-layout.description',
+    configurable: true,
+    defaultState: false,
+  },
   enable_mobile_database_editing: {
     category: 'blocksuite',
     bsFlag: 'enable_mobile_database_editing',
